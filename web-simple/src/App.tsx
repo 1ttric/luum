@@ -7,7 +7,7 @@ import axiosRetry from 'axios-retry';
 
 axiosRetry(axios, {retries: 3})
 
-const API_URL = process.env.REACT_APP_API_URL ?? "http://127.0.0.1:3001"
+const API_URL = process.env.REACT_APP_API_URL ?? ""
 
 // Time before initial photo
 const PHOTO_TIME_INITIAL = 5000
