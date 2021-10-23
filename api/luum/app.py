@@ -69,17 +69,18 @@ class ThreadsafeCamera:
                 config = self._cam.get_config()
             yield from flatten_config(config)
 
-        def generate_preview_frames(self, size=0):
+        def generate_preview_frames(self, size=0, quality=0):
             while True:
                 with self.mutex:
                     preview = self._cam.capture_preview()
                     mimetype = preview.get_mime_type()
                     data = bytes(preview.get_data_and_size())
-                    if size:
+                    if size or quality:
                         img = Image.open(io.BytesIO(data))
-                        img.thumbnail((size, size))
+                        if size:
+                            img.thumbnail((size, size))
                         buf = io.BytesIO()
-                        img.save(buf, "JPEG")
+                        img.save(buf, "JPEG", quality=(quality or 75))
                         buf.seek(0)
                         data = buf.read()
                 yield b"--preview-frame\r\nContent-Type: " + mimetype.encode() + b"\r\n\r\n" + data + b"\r\n"
@@ -139,18 +140,19 @@ class ThreadsafeCamera:
                 self._cam.set_config(cfg)
                 return self._cam.capture(type)
 
-        def download(self, file_path: str, size: int = 0):
+        def download(self, file_path: str, size: int = 0, quality: int = 0):
             with self.mutex:
                 file_path = Path(file_path)
                 hierarchy, fname = str(file_path.parent), str(file_path.name)
                 camera_file = self._cam.file_get(hierarchy, fname, gp.GP_FILE_TYPE_NORMAL)
                 file_data = bytes(camera_file.get_data_and_size())
                 mime_type = camera_file.get_mime_type()
-                if size:
+                if size or quality:
                     img = Image.open(io.BytesIO(file_data))
-                    img.thumbnail((size, size))
+                    if size:
+                        img.thumbnail((size, size))
                     buf = io.BytesIO()
-                    img.save(buf, "JPEG")
+                    img.save(buf, "JPEG", quality=(quality or 75))
                     buf.seek(0)
                     file_data = buf.read()
                     mime_type = "image/jpeg"
@@ -284,8 +286,10 @@ def get_hierarchy():
 def get_preview():
     port = request.args["port"]
     size = int(request.args.get("size", "0"))
+    quality = int(request.args.get("quality", "0"))
     camera = ThreadsafeCamera.get_instance(port)
-    return Response(camera.generate_preview_frames(size), mimetype="multipart/x-mixed-replace; boundary=preview-frame")
+    return Response(camera.generate_preview_frames(size, quality),
+                    mimetype="multipart/x-mixed-replace; boundary=preview-frame")
 
 
 @app.route("/api/capture/image")
@@ -309,8 +313,9 @@ def download_image():
     port = request.args["port"]
     path = request.args["path"]
     size = int(request.args.get("size", "0"))
+    quality = int(request.args.get("quality", "0"))
     camera = ThreadsafeCamera.get_instance(port)
-    file_data, mime_type = camera.download(path, size)
+    file_data, mime_type = camera.download(path, size, quality)
     return send_file(io.BytesIO(file_data), mime_type)
 
 
