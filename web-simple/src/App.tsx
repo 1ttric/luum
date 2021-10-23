@@ -204,7 +204,7 @@ function App() {
                                         <Box style={{flex: "1"}} key={idx}>
                                             <img
                                                 style={{height: "100%", width: "100%", objectFit: "contain"}}
-                                                src={`${API_URL}/api/download/image?port=${cameras[0].port}&path=${path + "/" + f.name}&quality=20`}/>
+                                                src={`${API_URL}/api/download/image?port=${cameras[0].port}&path=${path + "/" + f.name}&quality=20&size=300`}/>
                                         </Box>
                                     ))
                                 }
