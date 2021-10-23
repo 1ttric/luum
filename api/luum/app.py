@@ -5,6 +5,8 @@ import threading
 import zipfile
 from enum import Enum
 from pathlib import Path
+
+from PIL import Image
 from flask_cors import CORS
 from typing import List, Optional, Generator, Dict, Tuple, Any
 
@@ -67,12 +69,19 @@ class ThreadsafeCamera:
                 config = self._cam.get_config()
             yield from flatten_config(config)
 
-        def generate_preview_frames(self):
+        def generate_preview_frames(self, size=0):
             while True:
                 with self.mutex:
                     preview = self._cam.capture_preview()
                     mimetype = preview.get_mime_type()
                     data = bytes(preview.get_data_and_size())
+                    if size:
+                        img = Image.open(io.BytesIO(data))
+                        img.thumbnail((size, size))
+                        buf = io.BytesIO()
+                        img.save(buf, "JPEG")
+                        buf.seek(0)
+                        data = buf.read()
                 yield b"--preview-frame\r\nContent-Type: " + mimetype.encode() + b"\r\n\r\n" + data + b"\r\n"
 
         def set_config(self, name, value):
@@ -130,13 +139,21 @@ class ThreadsafeCamera:
                 self._cam.set_config(cfg)
                 return self._cam.capture(type)
 
-        def download(self, file_path: str):
+        def download(self, file_path: str, size: int = 0):
             with self.mutex:
                 file_path = Path(file_path)
                 hierarchy, fname = str(file_path.parent), str(file_path.name)
                 camera_file = self._cam.file_get(hierarchy, fname, gp.GP_FILE_TYPE_NORMAL)
                 file_data = bytes(camera_file.get_data_and_size())
                 mime_type = camera_file.get_mime_type()
+                if size:
+                    img = Image.open(io.BytesIO(file_data))
+                    img.thumbnail((size, size))
+                    buf = io.BytesIO()
+                    img.save(buf, "JPEG")
+                    buf.seek(0)
+                    file_data = buf.read()
+                    mime_type = "image/jpeg"
                 return [file_data, mime_type]
 
         def capture_download(self, type):
@@ -266,8 +283,9 @@ def get_hierarchy():
 @app.route("/api/preview.mjpeg")
 def get_preview():
     port = request.args["port"]
+    size = int(request.args.get("size", "0"))
     camera = ThreadsafeCamera.get_instance(port)
-    return Response(camera.generate_preview_frames(), mimetype="multipart/x-mixed-replace; boundary=preview-frame")
+    return Response(camera.generate_preview_frames(size), mimetype="multipart/x-mixed-replace; boundary=preview-frame")
 
 
 @app.route("/api/capture/image")
@@ -290,8 +308,9 @@ def capturedownload_image():
 def download_image():
     port = request.args["port"]
     path = request.args["path"]
+    size = int(request.args.get("size", "0"))
     camera = ThreadsafeCamera.get_instance(port)
-    file_data, mime_type = camera.download(path)
+    file_data, mime_type = camera.download(path, size)
     return send_file(io.BytesIO(file_data), mime_type)
 
 

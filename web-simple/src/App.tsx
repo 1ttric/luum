@@ -153,7 +153,7 @@ function App() {
                                         <Box>
                                             {
                                                 <img style={{height: "100%", width: "100%", objectFit: "cover"}}
-                                                     src={`${API_URL}/api/preview.mjpeg?port=${cameras[0].port}`}
+                                                     src={`${API_URL}/api/preview.mjpeg?port=${cameras[0].port}&size=300`}
                                                     // src="https://picsum.photos/600"
                                                      alt="Live preview"
                                                      onClick={() => setTriggerPhoto(i => i + 1)}/>
@@ -204,7 +204,7 @@ function App() {
                                         <Box style={{flex: "1"}} key={idx}>
                                             <img
                                                 style={{height: "100%", width: "100%", objectFit: "contain"}}
-                                                src={`${API_URL}/api/download/image?port=${cameras[0].port}&path=${path + "/" + f.name}`}/>
+                                                src={`${API_URL}/api/download/image?port=${cameras[0].port}&path=${path + "/" + f.name}&size=100`}/>
                                         </Box>
                                     ))
                                 }
