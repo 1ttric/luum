@@ -9,12 +9,14 @@ import {
     Checkbox,
     CircularProgress,
     Divider,
-    Fab, Fade,
+    Fab,
+    Fade,
     IconButton,
     List,
     ListItem,
     MenuItem,
-    Select, Slider,
+    Select,
+    Slider,
     TextField,
     Toolbar,
     Typography
@@ -23,11 +25,11 @@ import AdapterDateFns from "@mui/lab/AdapterLuxon";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import {DateTimePicker} from "@mui/lab";
 import {DateTime} from "luxon";
-import {Star, StarBorder, Settings} from "@mui/icons-material";
+import {Settings, Star, StarBorder} from "@mui/icons-material";
 import {useLocalStorage} from "usehooks-ts";
 import {findIndex, sortBy} from "lodash";
 
-const API_URL = process.env.REACT_APP_API_URL ?? ""
+const API_URL = process.env.REACT_APP_API_URL ?? "http://127.0.0.1:3001"
 
 interface Camera {
     name: string;
