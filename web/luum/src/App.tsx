@@ -19,8 +19,8 @@ import {
     Toolbar,
     Typography
 } from "@mui/material";
-import AdapterDateFns from '@mui/lab/AdapterLuxon';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import AdapterDateFns from "@mui/lab/AdapterLuxon";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import {DateTimePicker} from "@mui/lab";
 import {DateTime} from "luxon";
 import {Star, StarBorder, Settings} from "@mui/icons-material";
