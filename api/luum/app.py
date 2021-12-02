@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import base64
 import io
 import threading
@@ -322,4 +323,8 @@ def download_image():
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 3001)
+    parser = argparse.ArgumentParser(description="The Luum API. Exposes usable gphoto2 endpoints over HTTP.")
+    parser.add_argument("ip", default="127.0.0.1", help="The IP on which to listen")
+    parser.add_argument("port", type=int, default=3001, help="The port on which to listen")
+    args = parser.parse_args()
+    app.run(args.ip, args.port)
