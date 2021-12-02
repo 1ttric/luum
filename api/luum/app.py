@@ -35,16 +35,19 @@ class ThreadsafeCamera:
             self._port = port
 
         def __enter__(self):
+            print("__enter__")
             self.connect()
             return self
 
         def __exit__(self, *args):
+            print("__exit__")
             self.disconnect()
 
         # Implements some logic to allow tracking of the connected state so repeated calls to init() don't re-init the camera
         def connect_raw(self):
             if self._connected:
                 return
+            print("connecting")
             port_info_list = gp.PortInfoList()
             port_info_list.load()
             idx = port_info_list.lookup_path(self._port)
@@ -233,8 +236,7 @@ def list_cameras() -> Tuple[Dict[str, Any]]:
     port_info_list.load()
     ret = []
     for name, port in cameras:
-        with ThreadsafeCamera.get_instance(port) as cam:
-            summary = cam.get_summary()
+        summary = ThreadsafeCamera.get_instance(port).get_summary()
         data = {"name": name, "port": port, "summary": summary}
         ret.append(data)
     return tuple(ret)

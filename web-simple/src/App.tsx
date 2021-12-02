@@ -3,7 +3,7 @@ import "./App.css";
 import axios from "axios";
 import {Box, CircularProgress, Paper, Typography} from "@material-ui/core";
 import {sortBy} from "lodash";
-import axiosRetry from 'axios-retry';
+import axiosRetry from "axios-retry";
 
 axiosRetry(axios, {retries: 3})
 
