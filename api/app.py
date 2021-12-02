@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import argparse
 import base64
 import io
@@ -6,12 +5,10 @@ import threading
 import zipfile
 from enum import Enum
 from pathlib import Path
-
-from PIL import Image
-from flask_cors import CORS
 from typing import List, Optional, Generator, Dict, Tuple, Any
 
 import gphoto2 as gp
+from PIL import Image
 from flask import Flask, jsonify, request, Response, send_file
 
 
@@ -244,7 +241,6 @@ def list_cameras() -> Tuple[Dict[str, Any]]:
 
 
 app = Flask(__name__)
-CORS(app)
 
 
 @app.route("/api/cameras")
@@ -324,7 +320,7 @@ def download_image():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="The Luum API. Exposes usable gphoto2 endpoints over HTTP.")
-    parser.add_argument("ip", default="127.0.0.1", help="The IP on which to listen")
-    parser.add_argument("port", type=int, default=3001, help="The port on which to listen")
+    parser.add_argument("--ip", default="127.0.0.1", help="The IP on which to listen")
+    parser.add_argument("--port", type=int, default=3001, help="The port on which to listen")
     args = parser.parse_args()
     app.run(args.ip, args.port)
