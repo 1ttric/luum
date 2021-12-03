@@ -1,3 +1,4 @@
 .idea
-web/luum/node_modules
+**/node_modules
 web/luum/build
+**/__pycache__
